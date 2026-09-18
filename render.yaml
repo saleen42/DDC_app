@@ -1,6 +1,5 @@
 services:
   - type: web
-    name: ddc-app
-    runtime: static
-    buildCommand: ""
+    name: ddc-app-phase2
+    env: static
     staticPublishPath: .

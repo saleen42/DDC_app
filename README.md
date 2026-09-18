@@ -1,40 +1,44 @@
-# DDC App — Phase 1
+# DDC App — Phase 2
 
-Mobile-first static prototype for Daddy Don't Care Co. Built to deploy directly to Render or any static host.
+Updated mobile-first static prototype for Daddy Don't Care Co.
 
-## What works
-- Home dashboard
-- Wingman interaction demo
-- DDC University with 12 courses
-- Fully written first course: Unfuck Your Thinking
-- Lesson video placeholders + written lesson + quiz + real-world action
-- Challenge Mode
-- Hot Seat voting + follow state
-- Fuck-It Bucket
-- DDC Daily
-- Crew
-- Points, levels and rewards
-- Your Life stats
-- Local persistence using browser localStorage
+## What's improved
+- Home screen redesigned to feel more alive and less dashboard-y
+- Daily Drop moved high on the home screen
+- Continue Learning card added
+- Bigger, more distinct feature cards with stronger personalities
+- More visible points, bonuses, and surprise drops
+- Rewards preview on home screen
+- Upgraded styling with rougher DDC attitude while staying usable
+- Full clickable flows for:
+  - Wingman
+  - DDC University
+  - Course lessons
+  - Challenge Mode
+  - Hot Seat
+  - Fuck-It Bucket
+  - Crew
+  - DDC Daily
+  - Rewards
+  - Your Life stats
+- Local persistence with browser localStorage
 
-## Run locally
-Open `index.html` directly, or serve the folder with any static server.
+## Files
+- index.html
+- styles.css
+- app.js
+- manifest.webmanifest
+- render.yaml
 
-## Deploy to Render
-1. Create a GitHub repo and add these files.
-2. In Render, create a **Static Site** from the repo.
-3. Build command: leave blank.
-4. Publish directory: `.`
+## Deploy
+Upload all files to your GitHub repo and redeploy on Render as a Static Site.
 
-`render.yaml` is included if you prefer Blueprint deployment.
+Build command: leave blank
+Publish directory: .
 
-## Next phase
-- Supabase auth/database
-- Real DDC member profiles
-- Real course/video CMS
-- OpenAI-powered Wingman / Bullshit Filter
-- Real Hot Seat posts and comments
-- Crew invites
-- Reward inventory + Shopify integration
-- Push notifications
-- Admin content dashboard
+## Next good move
+- Add Supabase for accounts + saved progress
+- Add real video/course content CMS
+- Add actual AI-powered Wingman
+- Add push notifications and streak logic
+- Add Shopify / rewards integration

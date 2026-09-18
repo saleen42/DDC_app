@@ -1,9 +1,17 @@
 {
-  "name":"DDC — Daddy Don't Care Co.",
-  "short_name":"DDC",
-  "start_url":"./",
-  "display":"standalone",
-  "background_color":"#08090c",
-  "theme_color":"#08090c",
-  "description":"DDC mobile web app prototype"
+  "name": "DDC",
+  "short_name": "DDC",
+  "description": "Daddy Don't Care Co. — Life without the bullshit.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#08090d",
+  "theme_color": "#08090d",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%23080a0f'/%3E%3Ctext x='18' y='103' font-family='Arial Black, Arial, sans-serif' font-size='64' fill='white'%3EDDC%3C/text%3E%3Ctext x='130' y='80' font-family='Arial, sans-serif' font-size='34' fill='%23ff168f'%3E%E2%99%9B%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

@@ -1,91 +1,864 @@
-const STORAGE_KEY='ddc_phase1_state_v1';
-const defaultState={points:250,chucked:0,actions:0,lessonsWatched:0,dailyWatched:false,dailyDone:false,followingHot:false,rewards:[],lessonState:{},crewSent:false};
-let state=loadState();
-let currentCourse=0,currentLesson=0,wingTone='honest';
+const STORAGE_KEY = 'ddc_app_v2';
 
-const courses=[
- {title:'UNFUCK YOUR THINKING',desc:'Question the bullshit you never agreed to in the first place.',lessons:[
-  {title:'YOU’RE RUNNING CODE YOU DIDN’T WRITE',time:'4 min',take:'A lot of your “normal” was installed before you were old enough to question shit.',body:'Job. House. Marriage. Status. Approval. Be normal. Don’t fail publicly. Some of that may be useful. Some of it may be somebody else’s crap wearing your voice. The problem isn’t that you were programmed. The problem is never checking the fucking code.',q:'What is the DDC move when a rule feels “normal”?',opts:['Obey it because everybody does','Question where it came from','Burn every rule automatically'],answer:1,action:'CATCH ONE “SHOULD”',actionBody:'Write one thing you think you should do. Ask: who told me this, do I actually believe it, and would I still want it if nobody could see me do it?'},
-  {title:'FIND THE SCRIPT',time:'5 min',take:'“Should” is often where the programming hides.',body:'Listen for “supposed to,” “at my age,” “everybody does,” and “what will people think?” That’s usually the script peeking out from under the rug.',q:'Best first question when you notice a “should”?',opts:['Who told me this?','How do I obey faster?','How do I make it look impressive?'],answer:0,action:'CATCH THREE SCRIPTS',actionBody:'For one day, write down three “should” thoughts. Don’t fix them. Just catch the little bastards.'},
-  {title:'FAMILIAR ISN’T FUCKING TRUE',time:'4 min',take:'You can repeat bullshit long enough that it starts sounding wise.',body:'“I’m too old.” “Nobody will like the real me.” “Success means money.” Maybe. Or maybe you’ve heard it so many times your brain stopped checking the receipt.',q:'A belief repeated for years is:',opts:['Automatically true','Still a belief until reality supports it','Basically science'],answer:1,action:'QUESTION ONE OLD STORY',actionBody:'Pick one belief you’ve carried forever. Write what evidence would actually prove or disprove it.'},
-  {title:'THE DDC TEST',time:'6 min',take:'Is it true? Is it mine? Does it help? Can I test it? What if I’m wrong?',body:'This is where DDC stops being “I don’t give a fuck” and becomes “I give the right fucks.” You are not replacing one rigid rule with another. You are checking your shit.',q:'Which question belongs in the DDC Test?',opts:['Will strangers approve?','Can I test it?','Will this make me look successful?'],answer:1,action:'RUN THE FIVE-QUESTION TEST',actionBody:'Take one belief that keeps bothering you and answer all five questions. No TED Talk. Just answer them.'},
-  {title:'RUN THE FUCKING EXPERIMENT',time:'5 min',take:'Reality beats rehearsing the same thought for six months.',body:'Go alone. Wear the thing. Take the trip. Ask the question. Try the class. Maybe it works. Maybe it blows. Either way, now you know something instead of mentally masturbating over possibilities.',q:'DDC prefers:',opts:['Endless certainty first','Small real-world experiments','Waiting until fear disappears'],answer:1,action:'TEST ONE THING',actionBody:'Do one low-risk thing this week that directly tests a belief you’ve been arguing with in your head.'},
-  {title:'KEEP / CHUCK / REWRITE',time:'5 min',take:'Not every rule is stupid. Some deserve keeping. Some need editing. Some need the fucking bucket.',body:'KEEP what serves you. CHUCK somebody else’s bullshit. REWRITE a useful idea that turned into a dumb rigid rule.',q:'“Everyone needs to like me” belongs where?',opts:['KEEP forever','CHUCK or REWRITE','Put it on a vision board'],answer:1,action:'SORT FIVE BELIEFS',actionBody:'Make three columns: KEEP, CHUCK, REWRITE. Put five current beliefs somewhere.'}
- ]},
- {title:'STOP ASKING PERMISSION',desc:'Other people get opinions. They do not automatically get a steering wheel.',lessons:['WHOSE OPINION COUNTS?','PEOPLE-PLEASING ISN’T KINDNESS','SAY NO WITHOUT A FUCKING NOVEL','BE YOURSELF WITHOUT BEING AN ASSHOLE','DO IT WITHOUT POLLING THE ROOM'].map(scaffold)},
- {title:'GET OFF AUTOPILOT',desc:'If every week looks the same, maybe stop driving life with cruise control on.',lessons:['DEFAULT MODE','DO SOMETHING DIFFERENT','GO ALONE','BOREDOM IS INFORMATION','BUILD MORE FIRSTS'].map(scaffold)},
- {title:'DO THE FUCKING THING',desc:'Less rehearsing. More first moves.',lessons:['WHY YOU KEEP WAITING','MAKE THE MOVE SMALLER','PERFECTION IS A DELAY TACTIC','FEAR VS INFORMATION','SHIP THE DAMN THING'].map(scaffold)},
- {title:'CARE ABOUT THE RIGHT SHIT',desc:'Not caring is not the goal. Giving the right fucks is.',lessons:['NOT CARING IS NOT THE GOAL','YOUR PEOPLE','TIME IS THE REAL CURRENCY','HANDLE WHAT MATTERS','CHUCK THE REST'].map(scaffold)},
- {title:'MONEY = FREEDOM',desc:'Money is useful as options and runway. Looking rich is a different fucking hobby.',lessons:['STATUS VS FREEDOM','THE FUCK-OFF FUND','WHAT ARE YOU BUYING?','LIFESTYLE CREEP','BUY MORE LIFE'].map(scaffold)},
- {title:'RELATIONSHIPS WITHOUT THE BULLSHIT',desc:'Connection without games, forced timelines, or turning somebody into a renovation project.',lessons:['STOP FORCING THE OUTCOME','ACTIONS VS WORDS','ACCEPT, DISCUSS, OR LEAVE','BOUNDARIES WITHOUT THEATER','REJECTION IS INFORMATION'].map(scaffold)},
- {title:'YOUR PEOPLE',desc:'Good people are worth actual effort. Stop assuming they’ll always be there.',lessons:['WHO ARE YOUR PEOPLE?','CALL THEM','BE THE FRIEND YOU WANT','SMALL CIRCLE, REAL CIRCLE','DON’T WAIT FOR THE FUNERAL'].map(scaffold)},
- {title:'BE ALONE WITHOUT BEING LONELY',desc:'Stop waiting for somebody else’s schedule before you start living.',lessons:['ALONE DOESN’T MEAN LONELY','DO IT SOLO','THE FIRST SOLO TRIP','STOP WORRYING ABOUT LOOKING WEIRD','ENJOY YOUR OWN DAMN COMPANY'].map(scaffold)},
- {title:'STOP LIVING FOR THE SHOW',desc:'Status, comparison, social media theater, and the circus of looking successful.',lessons:['WELCOME TO THE FUCKING THEATER','STATUS IS A COSTUME','WHAT DO YOU DO?','WOULD YOU WANT IT IF NOBODY SAW?','BUILD THE LIFE BEHIND THE PHOTO'].map(scaffold)},
- {title:'THE FUCK-IT BUCKET',desc:'A full system for giving the right fucks and wasting fewer on nonsense.',lessons:['WHAT DESERVES A FUCK?','CONTROL VS CONCERN','HANDLE / SCHEDULE / CHUCK','STOP FEEDING DEAD PROBLEMS','MAKE THE BUCKET A HABIT'].map(scaffold)},
- {title:'BUILD A LIFE YOU ACTUALLY LIKE',desc:'People, freedom, work, money, experiences, responsibility and meaning. Put the whole damn thing together.',lessons:['YOUR GLASSES','WHAT ACTUALLY REMAINS?','FREEDOM WITH CONSEQUENCES','YOUR VERSION OF ENOUGH','GO FUCKING LIVE'].map(scaffold)}
+const COURSES = [
+  {
+    id: 'unfuck',
+    name: 'UNFUCK YOUR THINKING',
+    desc: 'Question the bullshit you never agreed to in the first place.',
+    lessons: [
+      {
+        title: 'YOU’RE RUNNING CODE YOU DIDN’T WRITE',
+        minutes: 4,
+        take: 'A lot of your “normal” was installed before you were old enough to question shit.',
+        body: 'Job. House. Marriage. Status. Approval. Be normal. Don’t embarrass yourself. Some rules are useful. Some are just old code in your head pretending to be truth. The problem is not that you were programmed. The problem is never checking the fucking code.',
+        q: 'What is the first DDC move when a rule feels “normal”?',
+        options: ['Obey it faster', 'Question where it came from', 'Reject all rules immediately'],
+        correct: 1,
+        actionTitle: 'CATCH ONE “SHOULD”',
+        actionBody: 'Write down one thing you think you “should” do. Ask who taught it, whether it is actually yours, and whether you would still want it if nobody could see.'
+      },
+      {
+        title: 'THE DDC TEST',
+        minutes: 5,
+        take: 'Is it true? Is it mine? Does it help? Can I test it? What if I’m wrong?',
+        body: 'This is where DDC becomes useful. Not fake rebellion. Not “I don’t care about anything.” You care about the right shit and test the rest instead of bowing to it. That’s how you stop carrying ideas you never chose.',
+        q: 'Which question belongs in the DDC test?',
+        options: ['Will strangers approve?', 'Can I test it?', 'Will this make me look successful?'],
+        correct: 1,
+        actionTitle: 'RUN THE FIVE QUESTIONS',
+        actionBody: 'Take one belief that keeps taking up rent in your head and answer the five DDC questions honestly.'
+      },
+      {
+        title: 'RUN THE FUCKING EXPERIMENT',
+        minutes: 5,
+        take: 'Reality beats rehearsing the same thought for six months.',
+        body: 'Try the thing. Go alone. Ask the question. Wear the thing. Take the class. Do the harmless move instead of building a dramatic story around it. Testing reality gives you data. Overthinking gives you more overthinking.',
+        q: 'DDC prefers:',
+        options: ['Endless certainty first', 'Small real-world experiments', 'Waiting until fear disappears'],
+        correct: 1,
+        actionTitle: 'TEST ONE THING',
+        actionBody: 'Do one low-risk thing this week that directly tests a belief you’ve been arguing with in your head.'
+      },
+      {
+        title: 'KEEP / CHUCK / REWRITE',
+        minutes: 4,
+        take: 'Not every rule is stupid. Some deserve keeping. Some need editing. Some need the bucket.',
+        body: 'This is where the philosophy gets practical. KEEP what actually serves you. CHUCK what’s useless. REWRITE the ideas that were partly useful but got twisted into rigid nonsense.',
+        q: '“Everyone needs to like me” belongs where?',
+        options: ['KEEP', 'CHUCK or REWRITE', 'Tattoo it on your chest'],
+        correct: 1,
+        actionTitle: 'SORT FIVE BELIEFS',
+        actionBody: 'Make three columns: KEEP, CHUCK, REWRITE. Sort five current beliefs into one of them.'
+      }
+    ]
+  },
+  { id: 'permission', name: 'STOP ASKING PERMISSION', desc: 'Other people get opinions. They do not automatically get the steering wheel.', lessons: demoLessons(['WHOSE OPINION COUNTS?', 'PEOPLE-PLEASING ISN’T KINDNESS', 'SAY NO WITHOUT A FUCKING NOVEL', 'DO IT WITHOUT POLLING THE ROOM']) },
+  { id: 'autopilot', name: 'GET OFF AUTOPILOT', desc: 'If every week looks the same, maybe stop driving life with cruise control on.', lessons: demoLessons(['DEFAULT MODE', 'DO SOMETHING DIFFERENT', 'GO ALONE', 'BUILD MORE FIRSTS']) },
+  { id: 'thing', name: 'DO THE FUCKING THING', desc: 'Less rehearsing. More first moves.', lessons: demoLessons(['WHY YOU KEEP WAITING', 'MAKE THE MOVE SMALLER', 'PERFECTION IS A DELAY TACTIC', 'SHIP THE DAMN THING']) },
+  { id: 'care', name: 'CARE ABOUT THE RIGHT SHIT', desc: 'Not caring is not the goal. Giving the right fucks is.', lessons: demoLessons(['NOT CARING IS NOT THE GOAL', 'YOUR PEOPLE', 'TIME IS THE REAL CURRENCY', 'CHUCK THE REST']) },
+  { id: 'money', name: 'MONEY = FREEDOM', desc: 'Money is useful as options and runway. Looking rich is a different hobby.', lessons: demoLessons(['STATUS VS FREEDOM', 'THE FUCK-OFF FUND', 'WHAT ARE YOU BUYING?', 'BUY MORE LIFE']) },
+  { id: 'relationships', name: 'RELATIONSHIPS WITHOUT THE BULLSHIT', desc: 'Connection without games, forced timelines, or renovation projects.', lessons: demoLessons(['ACTIONS VS WORDS', 'ACCEPT, DISCUSS, OR LEAVE', 'BOUNDARIES WITHOUT THEATER', 'REJECTION IS INFORMATION']) },
+  { id: 'people', name: 'YOUR PEOPLE', desc: 'Good people are worth actual effort.', lessons: demoLessons(['WHO ARE YOUR PEOPLE?', 'CALL THEM', 'SMALL CIRCLE, REAL CIRCLE', 'DON’T WAIT FOR THE FUNERAL']) },
+  { id: 'alone', name: 'BE ALONE WITHOUT BEING LONELY', desc: 'Stop waiting for somebody else’s schedule before you start living.', lessons: demoLessons(['ALONE DOESN’T MEAN LONELY', 'DO IT SOLO', 'THE FIRST SOLO TRIP', 'ENJOY YOUR OWN DAMN COMPANY']) },
+  { id: 'show', name: 'STOP LIVING FOR THE SHOW', desc: 'Status, comparison, and the giant circus of looking successful.', lessons: demoLessons(['WELCOME TO THE THEATER', 'STATUS IS A COSTUME', 'WOULD YOU WANT IT IF NOBODY SAW?', 'BUILD THE LIFE BEHIND THE PHOTO']) },
+  { id: 'bucket', name: 'THE FUCK-IT BUCKET', desc: 'A system for giving the right fucks and wasting fewer on nonsense.', lessons: demoLessons(['WHAT DESERVES A FUCK?', 'CONTROL VS CONCERN', 'HANDLE / SCHEDULE / CHUCK', 'MAKE THE BUCKET A HABIT']) },
+  { id: 'life', name: 'BUILD A LIFE YOU ACTUALLY LIKE', desc: 'People, freedom, work, money, experiences, responsibility, and meaning.', lessons: demoLessons(['YOUR VERSION OF ENOUGH', 'WHAT ACTUALLY REMAINS?', 'FREEDOM WITH CONSEQUENCES', 'GO FUCKING LIVE']) }
 ];
 
-function scaffold(title){return {title,time:'5 min',take:'This lesson gets fully built from the DDC interview for this course.',body:'No generic self-help wallpaper. We will use the course interview to add your actual stories, contradictions, jokes, opinions, examples, and the shit you think people get wrong.',q:'What makes a DDC lesson worth doing?',opts:['A motivational quote','A useful idea plus a real move','More screen time'],answer:1,action:'DO ONE REAL THING',actionBody:'Take one concrete action tied to this lesson. If nothing changes outside the app, the lesson didn’t do shit.'}}
-function loadState(){try{return {...defaultState,...JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}}catch{return {...defaultState}}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updatePointsUI()}
-function addPoints(n,msg){state.points+=n;save();toast(msg||`+${n} points`)}
-function levelInfo(){const p=state.points;if(p>=4000)return['DADDY LEVEL',4000,6000];if(p>=2500)return['CHAOS AGENT',2500,4000];if(p>=1200)return['UNBOTHERED',1200,2500];return['AWAKE',0,1200]}
-function updatePointsUI(){document.querySelector('#pointsTop').textContent=state.points}
-function toast(text){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.textContent=text;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
-function setNav(name){document.querySelectorAll('[data-nav]').forEach(b=>{if(b.closest('.bottom-nav'))b.classList.toggle('active',b.dataset.nav===name)})}
-function render(name='home'){setNav(name);window.scrollTo(0,0);const main=document.querySelector('#main');main.innerHTML='';const views={home,wingman,university,course,lesson,challenge,hotseat,bucket,daily,crew,rewards,me};(views[name]||home)(main)}
+const CHALLENGES = [
+  'Go somewhere within 10 miles you’ve never been. Take one photo and come back.',
+  'Call the person you keep saying you should call. Don’t text first.',
+  'Go do one thing alone you usually wait for somebody else to do with you.',
+  'Make one harmless decision today without asking a single person what they think.',
+  'Leave the phone behind for 30 minutes and go outside like a functioning mammal.',
+  'Try the thing you normally dismiss without thinking. Just one small experiment.'
+];
 
-document.addEventListener('click',e=>{const nav=e.target.closest('[data-nav]');if(nav){render(nav.dataset.nav)}})
-document.querySelector('.brand-wrap').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')render('home')})
+const REWARDS = [
+  { id: 'stickers', name: 'DDC Sticker Pack', cost: 500 },
+  { id: 'entry', name: 'Fuck-It Bucket Giveaway Entry', cost: 1000 },
+  { id: 'discount', name: '15% Merch Unlock', cost: 1500 },
+  { id: 'drop', name: 'Secret DDC Drop Access', cost: 2500 },
+  { id: 'shirt', name: 'Points-Only Limited Shirt', cost: 4000 }
+];
 
-function pageHead(title,sub,back='home'){return `<div class="page-head"><div><h1>${title}</h1><div class="sub">${sub}</div></div><button class="btn ghost" data-nav="${back}">Back</button></div>`}
-function home(el){const lv=levelInfo(),pct=Math.min(100,Math.max(0,(state.points-lv[1])/(lv[2]-lv[1])*100));el.innerHTML=`
-<div class="hero"><div class="eyebrow">TODAY</div><div class="headline">CARE ABOUT WHAT MATTERS.<br><span class="pink">CHUCK THE REST.</span></div><p class="copy">Learn something. Do something. Laugh at some bullshit. Then get off your phone and go live.</p><div class="progress"><i style="width:${pct}%"></i></div><div class="muted" style="font-size:11px;margin-top:7px">${lv[0]} · ${lv[2]-state.points} points to next level</div></div>
-<div class="section-head"><h2>WHAT THE FUCK DO YOU NEED?</h2><span>Pick your poison</span></div>
-<div class="grid">
- ${tile('💬','WINGMAN','What the fuck do I say?','wingman','hot')}
- ${tile('🎓','DDC UNIVERSITY','Useful shit. No guru bullshit.','university','cool')}
- ${tile('⚡','CHALLENGE MODE','Get off your ass.','challenge')}
- ${tile('🔥','HOT SEAT','Real people. Real situations.','hotseat','hot')}
- ${tile('🪣','FUCK-IT BUCKET','Handle it or chuck it.','bucket','cool')}
- ${tile('📺','DDC DAILY','Watch. Learn. Earn.','daily')}
- ${tile('👥','DDC CREW','Your tiny circle of degenerates.','crew')}
- ${tile('🏆','REWARDS','Do shit. Get cool shit.','rewards')}
- ${tile('◎','YOUR LIFE','Proof you actually did things.','me')}
-</div>
-<div class="card"><div class="eyebrow">DAILY FUCK YEAH</div><h3>Complete any real-world action today</h3><p class="copy">Watching shit is nice. Doing shit is better.</p></div>`}
-function tile(icon,title,desc,nav,cls=''){return `<button class="tile ${cls}" data-nav="${nav}"><div class="icon">${icon}</div><b>${title}</b><p>${desc}</p></button>`}
+const DAILY = {
+  title: 'STOP ASKING FIVE PEOPLE',
+  subtitle: '60-second Daddy rant',
+  body: 'If the decision is harmless and yours to make, stop assembling a fucking jury.',
+  bonus: 10,
+  actionBonus: 20,
+  actionTitle: 'Make one harmless decision today without polling anybody.'
+};
 
-function wingman(el){el.innerHTML=pageHead('WINGMAN','Texts · work · dating · family · awkward bullshit')+`
-<textarea id="wingInput" placeholder="Paste the message or tell DDC what happened..."></textarea>
-<div class="row" style="margin-top:9px">${['honest','direct','funny','nice','flirty'].map((t,i)=>`<button class="pill ${i===0?'active':''}" data-tone="${t}">${t.toUpperCase()}</button>`).join('')}</div>
-<button class="btn block" id="wingGo" style="margin-top:10px">WHAT THE FUCK DO I SAY?</button><div id="wingOut"></div>`;
-el.querySelectorAll('[data-tone]').forEach(b=>b.addEventListener('click',()=>{wingTone=b.dataset.tone;el.querySelectorAll('[data-tone]').forEach(x=>x.classList.toggle('active',x===b))}));el.querySelector('#wingGo').addEventListener('click',()=>{const text=el.querySelector('#wingInput').value.trim(),out=el.querySelector('#wingOut');if(!text){out.innerHTML='<div class="result pink">Give Daddy something to work with first.</div>';return}const tones={honest:'Say what you actually mean. Stop trying to engineer their reaction.',direct:'One clean sentence. Ask for clarity. Then shut up and watch what they do.',funny:'Keep it light. If you need five paragraphs, the joke is already on you.',nice:'Warm, clear, no groveling, no essay.',flirty:'Show interest without auditioning for Most Desperate Human Alive.'};out.innerHTML=`<div class="result"><b>THE READ</b><div class="copy">There may be multiple explanations. Don’t pretend you can read minds.</div></div><div class="result pink"><b>WHAT MATTERS</b><div class="copy">${tones[wingTone]}</div></div><div class="result"><b>DDC CALL</b><div class="copy">One useful move. Then get on with your fucking day.</div></div>`})}
+let state = loadState();
+let route = { screen: 'home' };
 
-function university(el){const started=new Set(Object.keys(state.lessonState).filter(k=>state.lessonState[k]?.watched||state.lessonState[k]?.action).map(k=>k.split('-')[0])).size;el.innerHTML=pageHead('DDC UNIVERSITY','Question the bullshit. Keep what matters.')+`<div class="card"><div class="eyebrow">PROGRESS</div><h3>${started} / 12 courses started</h3><div class="progress"><i style="width:${started/12*100}%"></i></div></div><div id="courses"></div>`;const box=el.querySelector('#courses');courses.forEach((c,i)=>{const done=c.lessons.filter((_,j)=>state.lessonState[`${i}-${j}`]?.action).length;const b=document.createElement('button');b.className='course-row';b.innerHTML=`<small>COURSE ${String(i+1).padStart(2,'0')}</small><strong>${c.title}</strong><div class="copy">${c.desc}</div><small>${done} / ${c.lessons.length} completed</small>`;b.addEventListener('click',()=>{currentCourse=i;render('course')});box.appendChild(b)})}
-function course(el){const c=courses[currentCourse],done=c.lessons.filter((_,j)=>state.lessonState[`${currentCourse}-${j}`]?.action).length;el.innerHTML=pageHead(c.title,'DDC University','university')+`<div class="card"><p class="copy">${c.desc}</p><div class="progress" style="margin-top:12px"><i style="width:${done/c.lessons.length*100}%"></i></div><div class="muted" style="font-size:11px;margin-top:6px">${done} / ${c.lessons.length} completed</div></div><div id="lessons"></div>`;const box=el.querySelector('#lessons');c.lessons.forEach((l,j)=>{const s=state.lessonState[`${currentCourse}-${j}`]||{};const b=document.createElement('button');b.className='lesson-row';b.innerHTML=`<small>LESSON ${j+1} · ${l.time}</small><strong>${l.title}</strong><small>${s.action?'DONE ✓':s.watched?'IN PROGRESS':'READY'}</small>`;b.addEventListener('click',()=>{currentLesson=j;render('lesson')});box.appendChild(b)})}
-function lesson(el){const c=courses[currentCourse],l=c.lessons[currentLesson],key=`${currentCourse}-${currentLesson}`;state.lessonState[key] ||= {};const s=state.lessonState[key];el.innerHTML=pageHead(l.title,c.title,'course')+`
-<div class="video-box"><div><div class="play">▶</div><strong>DDC VIDEO LESSON</strong><div class="muted" style="font-size:11px">${l.time}</div><button class="btn" id="watch" style="margin-top:12px">${s.watched?'WATCHED ✓':'WATCH +20'}</button></div></div>
-<div class="card"><div class="eyebrow">WRITTEN LESSON</div><h3>${l.take}</h3><p class="copy">${l.body}</p></div>
-<div class="card"><div class="eyebrow">QUICK CHECK · +10</div><h3>${l.q}</h3><div id="opts"></div><div class="muted" id="qfb" style="font-size:12px;margin-top:8px"></div></div>
-<div class="card"><div class="eyebrow">REAL-WORLD MOVE · +50</div><h3>${l.action}</h3><p class="copy">${l.actionBody}</p><textarea id="actionNote" placeholder="What did you actually do?">${s.note||''}</textarea><button class="btn block" id="doAction" style="margin-top:10px">${s.action?'DONE ✓':'I DID THE FUCKING THING +50'}</button></div>`;
-el.querySelector('#watch').addEventListener('click',e=>{if(s.watched)return;s.watched=true;state.lessonsWatched++;addPoints(20,'Watched. +20. Watching is not the same as changing your life, champ.');e.currentTarget.textContent='WATCHED ✓'});
-const ob=el.querySelector('#opts');l.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='quiz-option';b.textContent=o;b.addEventListener('click',()=>{if(s.quiz)return;if(i===l.answer){s.quiz=true;b.classList.add('correct');addPoints(10,'Correct. +10. Look at you learning shit.');el.querySelector('#qfb').textContent='Yep. That’s the move.'}else{b.classList.add('wrong');el.querySelector('#qfb').textContent='Nope. Try again with less bullshit.'}});ob.appendChild(b)});
-el.querySelector('#doAction').addEventListener('click',e=>{if(s.action)return;s.action=true;s.note=el.querySelector('#actionNote').value.trim();state.actions++;addPoints(50,'FUCK YEAH. +50. Real-world action wins.');e.currentTarget.textContent='DONE ✓'});save()}
+const main = document.getElementById('main');
+const topPoints = document.getElementById('pointsTop');
+const dropModal = document.getElementById('dropModal');
+const dropTitle = document.getElementById('dropTitle');
+const dropText = document.getElementById('dropText');
 
-function challenge(el){const missions=['Go somewhere within 10 miles you’ve never been. Take one photo.','Call somebody you keep saying you should call. Don’t text first.','Go do one thing alone you normally wait for somebody else to do with you.','Try the thing you normally dismiss without thinking.','Leave the phone behind for 30 minutes and go outside.','Make one harmless decision today without asking a single person what they think.'];el.innerHTML=pageHead('CHALLENGE MODE','Less scrolling. More stories.')+`<div class="card"><div class="eyebrow">HOW MUCH TIME?</div><div class="row" style="margin-top:8px"><button class="pill active">15 MIN</button><button class="pill">1 HOUR</button><button class="pill">TONIGHT</button><button class="pill">WEEKEND</button></div><div class="eyebrow" style="margin-top:14px">VIBE?</div><div class="row" style="margin-top:8px"><button class="pill active">SOLO</button><button class="pill">WITH SOMEONE</button><button class="pill">SURPRISE ME</button><button class="pill">SLIGHTLY STUPID</button></div></div><button class="btn blue block" id="spin" style="margin-top:10px">GIVE ME SOMETHING TO DO</button><div id="mission"></div>`;el.querySelector('#spin').addEventListener('click',()=>{const m=missions[Math.floor(Math.random()*missions.length)];el.querySelector('#mission').innerHTML=`<div class="result"><b>YOUR MISSION</b><div class="copy">${m}</div><button class="btn block" id="doneMission" style="margin-top:10px">DONE +100</button></div>`;el.querySelector('#doneMission').addEventListener('click',e=>{if(e.currentTarget.disabled)return;e.currentTarget.disabled=true;e.currentTarget.textContent='FUCK YEAH ✓';state.actions++;addPoints(100,'Challenge complete. +100.')})})}
+document.getElementById('closeDrop').addEventListener('click', () => {
+  dropModal.classList.add('hidden');
+  dropModal.setAttribute('aria-hidden', 'true');
+});
 
-function hotseat(el){el.innerHTML=pageHead('HOT SEAT','Vote first. See what everybody else thinks after.')+`<div class="card"><div class="eyebrow">ANONYMOUS · 2H AGO</div><h3>I hate my job. New offer pays 15% less but gives me Fridays off and remote work. What would you do?</h3><div class="grid" style="grid-template-columns:1fr 1fr"><button class="btn ghost vote">TAKE IT</button><button class="btn ghost vote">STAY</button><button class="btn ghost vote">NEGOTIATE</button><button class="btn ghost vote">NEED INFO</button></div><div id="voteOut"></div></div><div class="card"><div class="eyebrow">FOLLOW THE UPDATE</div><p class="copy">The fun part is seeing what the hell they actually did later.</p><button class="btn ghost" id="follow">${state.followingHot?'FOLLOWING ✓':'FOLLOW THIS MESS'}</button></div>`;el.querySelectorAll('.vote').forEach(b=>b.addEventListener('click',()=>{el.querySelector('#voteOut').innerHTML=`<div class="result"><b>You voted: ${b.textContent}</b><div class="copy">Community: TAKE IT 44% · NEGOTIATE 31% · STAY 17% · NEED INFO 8%</div><div class="muted" style="font-size:11px">Crowd opinion is still crowd opinion. Use your damn brain.</div></div>`}));el.querySelector('#follow').addEventListener('click',e=>{state.followingHot=true;save();e.currentTarget.textContent='FOLLOWING ✓';toast('Following this mess.')})}
+document.addEventListener('click', (e) => {
+  const navTarget = e.target.closest('[data-nav]');
+  if (navTarget) {
+    const screen = navTarget.dataset.nav;
+    openScreen(screen);
+    return;
+  }
 
-function bucket(el){el.innerHTML=pageHead('FUCK-IT BUCKET','Some shit needs action. Some shit needs a bucket.')+`<textarea id="bucketText" placeholder="What bullshit is renting space in your head?"></textarea><div class="grid-3" style="margin-top:10px"><button class="btn ghost bucket" data-a="handle">HANDLE</button><button class="btn ghost bucket" data-a="later">LATER</button><button class="btn bucket" data-a="chuck">CHUCK IT</button></div><div id="bucketOut"></div>`;el.querySelectorAll('.bucket').forEach(b=>b.addEventListener('click',()=>{const t=el.querySelector('#bucketText').value.trim();if(!t){el.querySelector('#bucketOut').innerHTML='<div class="result pink">Put the bullshit in first.</div>';return}const a=b.dataset.a;const msg=a==='handle'?'This one needs action. Pick the smallest useful move and do it.':a==='later'?'Give it a real date. Until then, stop carrying it around all fucking day.':'CHUCKED. Nothing useful to do? Then stop donating attention to it.';el.querySelector('#bucketOut').innerHTML=`<div class="result ${a==='chuck'?'pink':''}"><b>DDC CALL</b><div class="copy">${msg}</div></div>`;if(a==='chuck'){state.chucked++;el.querySelector('#bucketText').value='';addPoints(10,'Chucked. +10. Move the fuck on.')}save()}))}
+  const openCourse = e.target.closest('[data-course]');
+  if (openCourse) {
+    route = { screen: 'course', course: openCourse.dataset.course };
+    render();
+    return;
+  }
 
-function daily(el){el.innerHTML=pageHead('DDC DAILY','Fresh shit every day.')+`<div class="video-box"><div><div class="play">📺</div><strong>STOP ASKING FIVE PEOPLE</strong><div class="muted" style="font-size:11px">60-second Daddy rant</div><button class="btn" id="watchDaily" style="margin-top:12px">${state.dailyWatched?'WATCHED ✓':'WATCH +10'}</button></div></div><div class="card"><div class="eyebrow">TODAY’S TAKEAWAY</div><p class="copy">If the decision is harmless and yours to make, stop assembling a fucking jury.</p></div><div class="card"><div class="eyebrow">TINY MOVE · +20</div><h3>Make one harmless decision today without polling anybody.</h3><button class="btn ghost" id="dailyDone">${state.dailyDone?'DONE ✓':'DONE +20'}</button></div>`;el.querySelector('#watchDaily').addEventListener('click',e=>{if(state.dailyWatched)return;state.dailyWatched=true;addPoints(10,'Daily watched. +10.');e.currentTarget.textContent='WATCHED ✓'});el.querySelector('#dailyDone').addEventListener('click',e=>{if(state.dailyDone)return;state.dailyDone=true;state.actions++;addPoints(20,'Tiny move done. +20. Now go be a person.');e.currentTarget.textContent='DONE ✓'})}
+  const openLesson = e.target.closest('[data-lesson]');
+  if (openLesson) {
+    route = { screen: 'lesson', course: openLesson.dataset.course, lesson: Number(openLesson.dataset.lesson) };
+    render();
+    return;
+  }
 
-function crew(el){el.innerHTML=pageHead('DDC CREW','Small circle. No follower-count bullshit.')+`<div class="card"><div class="eyebrow">TONIGHT’S CREW CHALLENGE</div><h3>Everybody does something they’ve been putting off for at least a week.</h3><button class="btn block" id="crewSend">${state.crewSent?'SENT ✓':'SEND TO CREW'}</button></div><div class="card"><div class="eyebrow">CREW VOTE</div><h3>“Do I go to this thing I already don’t want to go to?”</h3><div class="grid-3"><button class="btn ghost crewVote">GO</button><button class="btn ghost crewVote">SKIP</button><button class="btn ghost crewVote">STOP ASKING 😂</button></div><div id="crewOut" class="muted" style="font-size:12px;margin-top:8px"></div></div>`;el.querySelector('#crewSend').addEventListener('click',e=>{state.crewSent=true;save();e.currentTarget.textContent='SENT ✓';toast('Sent. Now we find out who’s all talk.')});el.querySelectorAll('.crewVote').forEach(b=>b.addEventListener('click',()=>el.querySelector('#crewOut').textContent=`Vote recorded: ${b.textContent}`))}
+  const redeem = e.target.closest('[data-redeem]');
+  if (redeem) {
+    redeemReward(redeem.dataset.redeem);
+    return;
+  }
+});
 
-function rewards(el){const rewards=[['DDC Sticker Pack',500],['Fuck-It Bucket Giveaway Entry',1000],['15% Merch Unlock',1500],['Secret DDC Drop Access',2500],['Points-Only Limited Shirt',4000]],lv=levelInfo();el.innerHTML=pageHead('REWARDS','Do shit. Get cool shit.')+`<div class="card"><div class="eyebrow">YOUR POINTS</div><div style="font-size:40px;font-weight:1000">${state.points}</div><div class="muted" style="font-size:12px">Level: ${lv[0]}</div></div><div id="rewardRows"></div>`;const box=el.querySelector('#rewardRows');rewards.forEach(([name,cost])=>{const unlocked=state.rewards.includes(name);const row=document.createElement('div');row.className='card reward-row';row.innerHTML=`<div><strong>${name}</strong><div class="muted" style="font-size:11px">${cost} points</div></div><button class="btn ${unlocked?'ghost':'gold'}" ${unlocked||state.points<cost?'disabled':''}>${unlocked?'UNLOCKED':state.points>=cost?'REDEEM':'LOCKED'}</button>`;row.querySelector('button').addEventListener('click',()=>{if(unlocked||state.points<cost)return;state.points-=cost;state.rewards.push(name);save();toast(`Unlocked: ${name}`);render('rewards')});box.appendChild(row)})}
+render();
 
-function me(el){const lv=levelInfo();el.innerHTML=pageHead('YOUR LIFE, ACTUALLY LIVED','Not perfection. Receipts.')+`<div class="grid-3"><div class="stat"><strong>${state.lessonsWatched}</strong><span>LESSONS</span></div><div class="stat"><strong>${state.actions}</strong><span>ACTIONS</span></div><div class="stat"><strong>${state.chucked}</strong><span>CHUCKED</span></div></div><div class="card"><div class="eyebrow">DDC RECEIPT</div><p class="copy">${receipt()}</p></div><div class="card"><div class="eyebrow">YOUR LEVEL</div><h3>${lv[0]}</h3><p class="copy">AWAKE → UNBOTHERED → CHAOS AGENT → DADDY LEVEL</p></div><div class="callout"><b>THE POINT IS NOT TO LIVE IN THIS APP.</b><p class="copy">The app should help you think clearer, laugh more, and do more shit outside the app.</p></div>`}
-function receipt(){const x=[];if(state.lessonsWatched)x.push(`watched ${state.lessonsWatched} lesson${state.lessonsWatched===1?'':'s'}`);if(state.actions)x.push(`did ${state.actions} real-world move${state.actions===1?'':'s'}`);if(state.chucked)x.push(`chucked ${state.chucked} piece${state.chucked===1?'':'s'} of bullshit`);return x.length?`So far you ${x.join(', ')}. Better than staring at inspirational shit and doing nothing.`:'You’ve only just started. Go make some shit worth tracking.'}
+function demoLessons(names) {
+  return names.map((name) => ({
+    title: name,
+    minutes: 4,
+    take: 'This one gets built out with your actual DDC stories and punchlines as we go.',
+    body: 'No fake guru workbook shit. One core idea, one quick check, one real-world move, and one useful next step.',
+    q: 'What makes a DDC lesson worth a damn?',
+    options: ['A quote graphic', 'A useful idea plus a real-world move', 'Longer screen time'],
+    correct: 1,
+    actionTitle: 'DO ONE REAL THING',
+    actionBody: 'Take one concrete action tied to the lesson. If nothing changes outside the app, the lesson didn’t do shit.'
+  }));
+}
 
-updatePointsUI();render('home');
+function loadState() {
+  const fallback = {
+    points: 250,
+    lessonsWatched: 0,
+    actionsDone: 0,
+    thingsChucked: 0,
+    watchedDaily: false,
+    didDailyAction: false,
+    followedHotSeat: false,
+    lastCourse: 'unfuck',
+    lastLesson: 0,
+    surpriseSeen: 0,
+    rewardsUnlocked: [],
+    lessonState: {},
+    sessionActions: 0,
+    lastChallenge: '',
+    missionCompleted: false,
+    voteChoice: '',
+    crewSent: false,
+    crewVote: '',
+    bucketHistory: []
+  };
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    return { ...fallback, ...(parsed || {}) };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function openScreen(screen) {
+  route = { screen };
+  render();
+}
+
+function render() {
+  topPoints.textContent = state.points;
+  renderBottomNav();
+  if (route.screen === 'home') main.innerHTML = renderHome();
+  if (route.screen === 'wingman') main.innerHTML = renderWingman();
+  if (route.screen === 'university') main.innerHTML = renderUniversity();
+  if (route.screen === 'course') main.innerHTML = renderCourse(route.course);
+  if (route.screen === 'lesson') main.innerHTML = renderLesson(route.course, route.lesson);
+  if (route.screen === 'challenge') main.innerHTML = renderChallenge();
+  if (route.screen === 'hotseat') main.innerHTML = renderHotSeat();
+  if (route.screen === 'bucket') main.innerHTML = renderBucket();
+  if (route.screen === 'crew') main.innerHTML = renderCrew();
+  if (route.screen === 'daily') main.innerHTML = renderDaily();
+  if (route.screen === 'rewards') main.innerHTML = renderRewards();
+  if (route.screen === 'me') main.innerHTML = renderMe();
+  bindScreenInteractions();
+}
+
+function renderBottomNav() {
+  document.querySelectorAll('.bottom-nav button').forEach((btn) => {
+    const target = btn.dataset.nav;
+    const active = route.screen === target || (target === 'university' && (route.screen === 'course' || route.screen === 'lesson'));
+    btn.classList.toggle('active', active);
+  });
+}
+
+function renderHome() {
+  const level = getLevel();
+  const dailyDone = state.watchedDaily ? 'WATCHED ✓' : `WATCH +${DAILY.bonus}`;
+  const continueData = getContinueData();
+  return `
+    <section class="screen active">
+      <div class="hero">
+        <div class="tag">TODAY</div>
+        <h1 class="hero-title">CARE ABOUT WHAT<br>MATTERS.<br><span class="pink">CHUCK THE REST.</span></h1>
+        <div class="hero-copy">Learn something. Do something. Laugh at some bullshit. Then get off your phone and go live.</div>
+        <div class="hero-doodle">GO FUCKING LIVE.</div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><span style="width:${level.progress}%"></span></div>
+          <div class="progress-meta"><span>${level.name}</span><span>${level.toNext} points to next level</span></div>
+        </div>
+      </div>
+
+      <div class="ribbon-row">
+        <div class="daily-card">
+          <div class="daily-head">
+            <div>
+              <div class="daily-pill">DAILY DROP</div>
+              <h2 class="daily-title">${DAILY.title}</h2>
+            </div>
+            <div class="status-pill">+${DAILY.bonus}</div>
+          </div>
+          <div class="daily-copy">${DAILY.body}</div>
+          <div class="action-row">
+            <button class="primary-btn" id="watchDailyHome">${dailyDone}</button>
+            <button class="outline-btn" data-nav="daily">OPEN DAILY</button>
+          </div>
+        </div>
+        <div class="continue-card">
+          <div class="continue-head">
+            <div>
+              <div class="continue-pill">CONTINUE</div>
+              <h2 class="continue-title">${continueData.title}</h2>
+            </div>
+            <div class="status-pill">${continueData.progress}</div>
+          </div>
+          <div class="continue-copy">${continueData.copy}</div>
+          <div class="action-row">
+            <button class="secondary-btn" data-lesson="${continueData.lessonIndex}" data-course="${continueData.courseId}">KEEP GOING</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">ALRIGHT, WHAT’S THE FUCKING PROBLEM?</div><div class="section-sub">Pick your poison.</div></div>
+      <div class="feature-grid">
+        ${featureCard('wingman', '💬', 'WINGMAN', 'What the fuck do I say?', '+10 insight', 'wingman')}
+        ${featureCard('university', '🎓', 'DDC UNIVERSITY', 'Useful shit. No guru bullshit.', `${countStartedCourses()} started`, 'university')}
+        ${featureCard('challenge', '⚡', 'CHALLENGE MODE', 'Get off your ass.', '+100 mission', 'challenge')}
+        ${featureCard('hotseat', '🔥', 'HOT SEAT', 'Vote on real people. Real situations.', '+5 vote', 'hotseat')}
+        ${featureCard('bucket', '🪣', 'FUCK-IT BUCKET', 'Handle it or chuck it.', `CHUCKED ${state.thingsChucked}`, 'bucket')}
+        ${featureCard('daily', '📺', 'DDC DAILY', 'Come back every day for a hit of useful shit.', state.watchedDaily ? 'Done today' : 'Ready now', 'daily')}
+      </div>
+
+      <div class="home-grid" style="margin-top:14px;">
+        <div class="rewards-preview">
+          <div class="daily-head">
+            <div>
+              <div class="reward-pill">REWARDS PREVIEW</div>
+              <h3>DO SHIT. GET COOL SHIT.</h3>
+            </div>
+            <button class="outline-btn" data-nav="rewards">SEE ALL</button>
+          </div>
+          <div class="reward-list">
+            ${REWARDS.slice(0,3).map(r => rewardPreviewRow(r)).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function featureCard(cls, emoji, title, copy, badge, nav) {
+  return `
+    <button class="feature-card ${cls}" data-nav="${nav}">
+      <div class="feature-top">
+        <div class="feature-emoji">${emoji}</div>
+        <div class="feature-tag">OPEN</div>
+      </div>
+      <h3>${title}</h3>
+      <p>${copy}</p>
+      <div class="points-badge">${badge}</div>
+    </button>
+  `;
+}
+
+function rewardPreviewRow(r) {
+  return `
+    <div class="reward-item">
+      <div>
+        <div class="reward-name">${r.name}</div>
+        <div class="reward-cost">${r.cost} points</div>
+      </div>
+      <div class="small-note">${state.points >= r.cost ? 'READY' : `${r.cost - state.points} away`}</div>
+    </div>
+  `;
+}
+
+function renderWingman() {
+  return sectionWrap('WINGMAN', 'Texts · work · dating · awkward bullshit', `
+    <div class="message-card">
+      <h3>PASTE THE SITUATION</h3>
+      <p class="muted-copy">Don’t mind-read. Don’t over-explain. Give DDC the facts and let’s clean up the move.</p>
+      <textarea class="text-area" id="wingmanInput" placeholder="Paste the text exchange or explain what happened..."></textarea>
+      <div class="toolbar">
+        <button class="chip active" data-tone="honest">Honest</button>
+        <button class="chip" data-tone="direct">Direct</button>
+        <button class="chip" data-tone="funny">Funny</button>
+        <button class="chip" data-tone="nice">Nice</button>
+        <button class="chip" data-tone="flirty">Flirty</button>
+      </div>
+      <button class="primary-btn" id="wingmanGo">WHAT THE FUCK DO I SAY?</button>
+      <div id="wingmanOutput"></div>
+    </div>
+  `);
+}
+
+function renderUniversity() {
+  return sectionWrap('DDC UNIVERSITY', 'Courses, videos, quick checks, and real-world moves.', `
+    <div class="content-card">
+      <h3>YOUR CURRICULUM</h3>
+      <p class="muted-copy">This is not school. It’s the DDC operating system. Learn something. Test it. Keep it or chuck it.</p>
+    </div>
+    <div style="margin-top:14px;">
+      ${COURSES.map(renderCourseCard).join('')}
+    </div>
+  `);
+}
+
+function renderCourseCard(course) {
+  const done = course.lessons.filter((_, idx) => getLessonState(course.id, idx).action).length;
+  const total = course.lessons.length;
+  const width = Math.round((done / total) * 100);
+  return `
+    <button class="course-card" data-course="${course.id}">
+      <div class="course-meta">COURSE</div>
+      <div class="course-name">${course.name}</div>
+      <div class="course-desc">${course.desc}</div>
+      <div class="course-footer">
+        <div class="tiny-progress"><span style="width:${width}%"></span></div>
+        <div class="small-note">${done}/${total} complete</div>
+      </div>
+    </button>
+  `;
+}
+
+function renderCourse(courseId) {
+  const course = findCourse(courseId);
+  return sectionWrap(course.name, course.desc, `
+    <div class="content-card">
+      <h3>LESSONS</h3>
+      <p class="muted-copy">Video + written lesson + quick check + real-world move.</p>
+    </div>
+    <div style="margin-top:14px;">
+      ${course.lessons.map((lesson, idx) => renderLessonCard(course, lesson, idx)).join('')}
+    </div>
+  `, '<button class="outline-btn" data-nav="university">ALL COURSES</button>');
+}
+
+function renderLessonCard(course, lesson, idx) {
+  const ls = getLessonState(course.id, idx);
+  const status = ls.action ? 'DONE ✓' : ls.watch ? 'IN PROGRESS' : 'READY';
+  return `
+    <button class="lesson-card" data-course="${course.id}" data-lesson="${idx}">
+      <div class="lesson-meta">LESSON ${idx + 1} · ${lesson.minutes} MIN</div>
+      <div class="lesson-name">${lesson.title}</div>
+      <div class="lesson-desc">${lesson.take}</div>
+      <div class="lesson-footer">
+        <div class="small-note">${status}</div>
+        <div class="status-pill">+80 total</div>
+      </div>
+    </button>
+  `;
+}
+
+function renderLesson(courseId, index) {
+  const course = findCourse(courseId);
+  const lesson = course.lessons[index];
+  const ls = getLessonState(course.id, index);
+  return sectionWrap(lesson.title, course.name, `
+    <div class="lesson-hero">
+      <div class="lesson-time">VIDEO LESSON · ${lesson.minutes} MIN</div>
+      <div class="lesson-name" style="margin-top:8px;">${lesson.title}</div>
+      <div class="muted-copy">Watch the lesson, take the check, then go do the fucking thing in real life.</div>
+      <div class="action-row">
+        <button class="primary-btn" id="watchLesson">${ls.watch ? 'WATCHED ✓' : 'WATCH +20'}</button>
+      </div>
+    </div>
+
+    <div class="content-card" style="margin-top:14px;">
+      <h3>DADDY’S TAKE</h3>
+      <p class="body-copy"><strong>${lesson.take}</strong></p>
+      <p class="body-copy">${lesson.body}</p>
+    </div>
+
+    <div class="content-card" style="margin-top:14px;">
+      <h3>QUICK CHECK · +10</h3>
+      <p class="body-copy">${lesson.q}</p>
+      <div class="quiz-list">
+        ${lesson.options.map((opt, i) => `
+          <button class="option-card" data-quiz="${course.id}|${index}|${i}">${opt}</button>
+        `).join('')}
+      </div>
+      <div id="quizFeedback"></div>
+    </div>
+
+    <div class="content-card" style="margin-top:14px;">
+      <h3>REAL-WORLD MOVE · +50</h3>
+      <p class="body-copy"><strong>${lesson.actionTitle}</strong></p>
+      <p class="body-copy">${lesson.actionBody}</p>
+      <textarea class="text-area" id="actionNote" placeholder="What did you actually do?">${ls.note || ''}</textarea>
+      <div class="action-row">
+        <button class="secondary-btn" id="completeAction">${ls.action ? 'DONE ✓' : 'I DID THE FUCKING THING +50'}</button>
+      </div>
+      <div id="lessonFeedback"></div>
+    </div>
+  `, '<button class="outline-btn" data-course="' + course.id + '">BACK TO COURSE</button>');
+}
+
+function renderChallenge() {
+  return sectionWrap('CHALLENGE MODE', 'Less scrolling. More stories.', `
+    <div class="content-card">
+      <h3>GENERATE A MISSION</h3>
+      <p class="muted-copy">The longer you wait, the more it turns into bullshit. Pick a mission and go do it.</p>
+      <div class="toolbar">
+        <button class="chip active" data-filter="15 min">15 min</button>
+        <button class="chip" data-filter="Tonight">Tonight</button>
+        <button class="chip" data-filter="Weekend">Weekend</button>
+      </div>
+      <button class="primary-btn" id="newMission">GIVE ME SOMETHING TO DO</button>
+      <div class="challenge-box ${state.lastChallenge ? '' : 'hidden'}" id="challengeBox">
+        <div class="challenge-title">${state.lastChallenge || ''}</div>
+        <div class="muted-copy">Complete it for +100 points.</div>
+        <div class="action-row">
+          <button class="secondary-btn" id="completeMission">${state.missionCompleted ? 'MISSION DONE ✓' : 'DONE. I ACTUALLY DID IT +100'}</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function renderHotSeat() {
+  return sectionWrap('HOT SEAT', 'Vote first. Then see the crowd. Use your own brain anyway.', `
+    <div class="content-card">
+      <div class="feed-meta">ANONYMOUS · 2H AGO</div>
+      <div class="feed-title">I hate my job. New offer pays 15% less but gives me Fridays off and remote work. What would you do?</div>
+      <div class="vote-grid">
+        ${['TAKE IT', 'STAY', 'NEGOTIATE', 'NEED INFO'].map(v => `<button class="option-card" data-vote="${v}">${v}</button>`).join('')}
+      </div>
+      <div id="hotSeatResults">${state.voteChoice ? hotSeatResultsHtml(state.voteChoice) : ''}</div>
+      <div class="action-row">
+        <button class="outline-btn" id="followHotSeat">${state.followedHotSeat ? 'FOLLOWING ✓' : 'FOLLOW THE UPDATE'}</button>
+      </div>
+    </div>
+  `);
+}
+
+function renderBucket() {
+  return sectionWrap('FUCK-IT BUCKET', 'Some shit needs action. Some shit needs a bucket.', `
+    <div class="content-card">
+      <h3>WHAT BULLSHIT IS RENTING SPACE IN YOUR HEAD?</h3>
+      <textarea class="text-area" id="bucketInput" placeholder="Type the thing here..."></textarea>
+      <div class="action-row">
+        <button class="outline-btn" data-bucket="handle">HANDLE</button>
+        <button class="outline-btn" data-bucket="later">LATER</button>
+        <button class="primary-btn" data-bucket="chuck">CHUCK IT</button>
+      </div>
+      <div id="bucketResult"></div>
+    </div>
+    <div class="list-card" style="margin-top:14px;">
+      <h3>RECENT BUCKET HISTORY</h3>
+      <div class="simple-list">
+        ${state.bucketHistory.length ? state.bucketHistory.slice(0,4).map(item => `<div class="list-item"><div>${item.text}</div><div class="small-note">${item.action.toUpperCase()}</div></div>`).join('') : '<div class="small-note">Nothing here yet. Chuck something.</div>'}
+      </div>
+    </div>
+  `);
+}
+
+function renderCrew() {
+  return sectionWrap('DDC CREW', 'Small circle. No follower-count bullshit.', `
+    <div class="content-card">
+      <h3>TONIGHT’S CREW CHALLENGE</h3>
+      <p class="body-copy">Everybody does one thing they’ve been putting off for at least a week. No excuses. No essays.</p>
+      <div class="action-row">
+        <button class="primary-btn" id="sendCrew">${state.crewSent ? 'SENT TO CREW ✓' : 'SEND TO CREW'}</button>
+      </div>
+    </div>
+    <div class="content-card" style="margin-top:14px;">
+      <h3>CREW VOTE</h3>
+      <p class="body-copy">Do I go to this thing I already don’t want to go to?</p>
+      <div class="inline-row">
+        ${['GO', 'SKIP', 'STOP ASKING 😂'].map(v => `<button class="option-card" style="flex:1" data-crewvote="${v}">${v}</button>`).join('')}
+      </div>
+      <div id="crewResult">${state.crewVote ? `<div class="result-card"><h4>CREW CALL</h4><p>You voted: ${state.crewVote}</p></div>` : ''}</div>
+    </div>
+  `);
+}
+
+function renderDaily() {
+  return sectionWrap('DDC DAILY', 'Fresh shit every day.', `
+    <div class="daily-card">
+      <div class="daily-head">
+        <div>
+          <div class="daily-pill">TODAY'S VIDEO</div>
+          <h2 class="daily-title">${DAILY.title}</h2>
+        </div>
+        <div class="status-pill">+${DAILY.bonus}</div>
+      </div>
+      <div class="daily-copy">${DAILY.body}</div>
+      <div class="action-row">
+        <button class="primary-btn" id="watchDailyPage">${state.watchedDaily ? 'WATCHED ✓' : `WATCH TODAY +${DAILY.bonus}`}</button>
+      </div>
+    </div>
+    <div class="content-card" style="margin-top:14px;">
+      <h3>TINY MOVE · +${DAILY.actionBonus}</h3>
+      <p class="body-copy">${DAILY.actionTitle}</p>
+      <div class="action-row">
+        <button class="secondary-btn" id="dailyAction">${state.didDailyAction ? 'DONE ✓' : `DONE +${DAILY.actionBonus}`}</button>
+      </div>
+    </div>
+  `);
+}
+
+function renderRewards() {
+  return sectionWrap('REWARDS', 'Do shit. Get cool shit.', `
+    <div class="content-card">
+      <h3>YOUR BALANCE</h3>
+      <p class="body-copy"><strong>${state.points} points</strong> · ${getLevel().name}</p>
+    </div>
+    <div style="margin-top:14px;">
+      ${REWARDS.map(r => `
+        <div class="reward-card">
+          <div>
+            <div class="reward-name">${r.name}</div>
+            <div class="reward-cost">${r.cost} points</div>
+          </div>
+          <button class="${state.rewardsUnlocked.includes(r.id) ? 'outline-btn' : state.points >= r.cost ? 'primary-btn' : 'outline-btn'}" ${state.rewardsUnlocked.includes(r.id) ? 'disabled' : ''} data-redeem="${r.id}">
+            ${state.rewardsUnlocked.includes(r.id) ? 'UNLOCKED ✓' : state.points >= r.cost ? 'UNLOCK' : `${r.cost - state.points} AWAY`}
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+
+function renderMe() {
+  return sectionWrap('YOUR LIFE', 'Not perfection. Receipts.', `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-number">${state.lessonsWatched}</div><div class="stat-label">Lessons</div></div>
+      <div class="stat-card"><div class="stat-number">${state.actionsDone}</div><div class="stat-label">Actions</div></div>
+      <div class="stat-card"><div class="stat-number">${state.thingsChucked}</div><div class="stat-label">Chucked</div></div>
+    </div>
+    <div class="feed-stack">
+      <div class="feed-card">
+        <div class="feed-meta">YOUR RECEIPT</div>
+        <div class="feed-title">${buildReceiptHeadline()}</div>
+        <div class="feed-body">${buildReceiptBody()}</div>
+      </div>
+      <div class="feed-card">
+        <div class="feed-meta">LEVELS</div>
+        <div class="feed-title">AWAKE → UNBOTHERED → CHAOS AGENT → DADDY LEVEL</div>
+        <div class="feed-body">The app gives you little hits of dopamine. Real life gives you the good shit. That’s the point.</div>
+      </div>
+    </div>
+  `);
+}
+
+function sectionWrap(title, subtitle, inner, extraTopButton = '') {
+  return `
+    <section class="screen active">
+      <div class="section-head" style="margin-top:2px;align-items:center;">
+        <div>
+          <div class="section-title" style="font-size:26px;letter-spacing:-.03em;">${title}</div>
+          <div class="section-sub">${subtitle}</div>
+        </div>
+        ${extraTopButton || '<button class="outline-btn" data-nav="home">HOME</button>'}
+      </div>
+      ${inner}
+    </section>
+  `;
+}
+
+function bindScreenInteractions() {
+  const watchDailyHome = document.getElementById('watchDailyHome');
+  if (watchDailyHome) watchDailyHome.addEventListener('click', () => handleWatchDaily());
+  const watchDailyPage = document.getElementById('watchDailyPage');
+  if (watchDailyPage) watchDailyPage.addEventListener('click', () => handleWatchDaily());
+  const dailyAction = document.getElementById('dailyAction');
+  if (dailyAction) dailyAction.addEventListener('click', () => {
+    if (state.didDailyAction) return;
+    state.didDailyAction = true;
+    addPoints(DAILY.actionBonus);
+    state.actionsDone += 1;
+    maybeDrop(35, 'DAILY ACTION BONUS', 'Nice. The app noticed you actually did something in the real world.');
+    saveAndRender();
+  });
+
+  const wingmanGo = document.getElementById('wingmanGo');
+  if (wingmanGo) wingmanGo.addEventListener('click', runWingman);
+
+  document.querySelectorAll('[data-tone]').forEach((el) => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-tone]').forEach((c) => c.classList.remove('active'));
+      el.classList.add('active');
+    });
+  });
+
+  const newMission = document.getElementById('newMission');
+  if (newMission) newMission.addEventListener('click', () => {
+    state.lastChallenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
+    state.missionCompleted = false;
+    saveAndRender();
+  });
+
+  const completeMission = document.getElementById('completeMission');
+  if (completeMission) completeMission.addEventListener('click', () => {
+    if (state.missionCompleted) return;
+    state.missionCompleted = true;
+    addPoints(100);
+    state.actionsDone += 1;
+    maybeDrop(50, 'MISSION BONUS', 'That earns a real bonus. Doing shit beats planning shit.');
+    saveAndRender();
+  });
+
+  document.querySelectorAll('[data-vote]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!state.voteChoice) addPoints(5);
+      state.voteChoice = el.dataset.vote;
+      saveAndRender();
+    });
+  });
+
+  const followHotSeat = document.getElementById('followHotSeat');
+  if (followHotSeat) followHotSeat.addEventListener('click', () => {
+    state.followedHotSeat = true;
+    saveAndRender();
+  });
+
+  document.querySelectorAll('[data-bucket]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const input = document.getElementById('bucketInput');
+      const text = input.value.trim();
+      const result = document.getElementById('bucketResult');
+      if (!text) {
+        result.innerHTML = '<div class="result-card"><h4>PUT IT IN FIRST</h4><p>You need to type the bullshit before we can deal with it.</p></div>';
+        return;
+      }
+      const action = el.dataset.bucket;
+      const messages = {
+        handle: 'This one needs action. Pick the smallest useful move and do that first.',
+        later: 'Give it a real date. Until then, stop carrying it around all fucking day.',
+        chuck: 'CHUCKED. If you cannot usefully act on it right now, stop donating attention to it.'
+      };
+      if (action === 'chuck') {
+        state.thingsChucked += 1;
+        addPoints(10);
+        input.value = '';
+      }
+      state.bucketHistory.unshift({ text, action });
+      state.bucketHistory = state.bucketHistory.slice(0, 8);
+      result.innerHTML = `<div class="result-card"><h4>DDC CALL</h4><p>${messages[action]}</p></div>`;
+      saveState();
+    });
+  });
+
+  const sendCrew = document.getElementById('sendCrew');
+  if (sendCrew) sendCrew.addEventListener('click', () => {
+    state.crewSent = true;
+    saveAndRender();
+  });
+
+  document.querySelectorAll('[data-crewvote]').forEach((el) => {
+    el.addEventListener('click', () => {
+      state.crewVote = el.dataset.crewvote;
+      saveAndRender();
+    });
+  });
+
+  const watchLesson = document.getElementById('watchLesson');
+  if (watchLesson) watchLesson.addEventListener('click', () => {
+    const ls = getLessonState(route.course, route.lesson);
+    if (ls.watch) return;
+    ls.watch = true;
+    state.lessonsWatched += 1;
+    state.lastCourse = route.course;
+    state.lastLesson = route.lesson;
+    addPoints(20);
+    saveAndRender();
+  });
+
+  document.querySelectorAll('[data-quiz]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const [courseId, lessonIndex, selected] = el.dataset.quiz.split('|');
+      const lesson = findCourse(courseId).lessons[Number(lessonIndex)];
+      const ls = getLessonState(courseId, Number(lessonIndex));
+      const feedback = document.getElementById('quizFeedback');
+      if (ls.quiz) {
+        feedback.innerHTML = '<div class="result-card"><h4>ALREADY DONE</h4><p>You already took the check on this lesson.</p></div>';
+        return;
+      }
+      if (Number(selected) === lesson.correct) {
+        ls.quiz = true;
+        addPoints(10);
+        feedback.innerHTML = '<div class="result-card"><h4>YEP</h4><p>+10 points. Look at you learning useful shit.</p></div>';
+      } else {
+        feedback.innerHTML = '<div class="result-card"><h4>NOPE</h4><p>Try again with less bullshit.</p></div>';
+      }
+      saveState();
+    });
+  });
+
+  const completeAction = document.getElementById('completeAction');
+  if (completeAction) completeAction.addEventListener('click', () => {
+    const ls = getLessonState(route.course, route.lesson);
+    if (ls.action) return;
+    ls.action = true;
+    ls.note = document.getElementById('actionNote').value.trim();
+    state.actionsDone += 1;
+    state.lastCourse = route.course;
+    state.lastLesson = route.lesson + 1 < findCourse(route.course).lessons.length ? route.lesson + 1 : route.lesson;
+    addPoints(50);
+    maybeDrop(25, 'LESSON COMPLETED', 'Good. Watching is cute. Doing the move is where the value is.');
+    saveAndRender();
+  });
+}
+
+function runWingman() {
+  const output = document.getElementById('wingmanOutput');
+  const input = document.getElementById('wingmanInput').value.trim();
+  const tone = document.querySelector('[data-tone].active')?.dataset.tone || 'honest';
+  if (!input) {
+    output.innerHTML = '<div class="result-card"><h4>GIVE ME SOMETHING</h4><p>Paste the situation first. Daddy is not a mind-reader.</p></div>';
+    return;
+  }
+  const toneMap = {
+    honest: 'Say what you actually mean once. Stop engineering their reaction.',
+    direct: 'One clean sentence. Ask for clarity. Then shut up and watch what they do.',
+    funny: 'Keep it light. If you need a five-paragraph explanation, the joke is already on you.',
+    nice: 'Warm, clear, no groveling, no essay.',
+    flirty: 'Show interest without auditioning for the role of Most Desperate Human Alive.'
+  };
+  output.innerHTML = `
+    <div class="result-card"><h4>THE READ</h4><p>There may be multiple explanations. Don’t pretend you can read minds from a screen.</p></div>
+    <div class="result-card"><h4>WHAT MATTERS</h4><p>${toneMap[tone]}</p></div>
+    <div class="result-card"><h4>DDC CALL</h4><p>Make one useful move. Then get on with your fucking day.</p></div>
+  `;
+}
+
+function handleWatchDaily() {
+  if (state.watchedDaily) return;
+  state.watchedDaily = true;
+  addPoints(DAILY.bonus);
+  maybeDrop(20, 'DAILY WATCH BONUS', 'Tiny points for showing up. Bigger points come when you actually do something.');
+  saveAndRender();
+}
+
+function getContinueData() {
+  const course = findCourse(state.lastCourse) || COURSES[0];
+  const idx = Math.min(state.lastLesson || 0, course.lessons.length - 1);
+  const done = course.lessons.filter((_, i) => getLessonState(course.id, i).action).length;
+  return {
+    title: course.name,
+    courseId: course.id,
+    lessonIndex: idx,
+    progress: `${done}/${course.lessons.length} done`,
+    copy: `Pick back up at Lesson ${idx + 1}: ${course.lessons[idx].title}.`
+  };
+}
+
+function getLessonState(courseId, lessonIndex) {
+  const key = `${courseId}:${lessonIndex}`;
+  if (!state.lessonState[key]) state.lessonState[key] = { watch: false, quiz: false, action: false, note: '' };
+  return state.lessonState[key];
+}
+
+function getLevel() {
+  const p = state.points;
+  if (p >= 3000) return { name: 'DADDY LEVEL', progress: 100, toNext: 0 };
+  if (p >= 1800) return { name: 'CHAOS AGENT', progress: ((p - 1800) / 1200) * 100, toNext: 3000 - p };
+  if (p >= 900) return { name: 'UNBOTHERED', progress: ((p - 900) / 900) * 100, toNext: 1800 - p };
+  return { name: 'AWAKE', progress: (p / 900) * 100, toNext: 900 - p };
+}
+
+function countStartedCourses() {
+  return COURSES.filter((course) => course.lessons.some((_, idx) => {
+    const ls = getLessonState(course.id, idx);
+    return ls.watch || ls.action || ls.quiz;
+  })).length;
+}
+
+function addPoints(amount) {
+  state.points += amount;
+  state.sessionActions += 1;
+}
+
+function maybeDrop(amount, title, text) {
+  if (state.sessionActions % 2 === 0 || state.surpriseSeen < 1) {
+    state.points += amount;
+    state.surpriseSeen += 1;
+    dropTitle.textContent = `+${amount} BONUS POINTS`;
+    dropText.textContent = text;
+    dropModal.classList.remove('hidden');
+    dropModal.setAttribute('aria-hidden', 'false');
+  }
+}
+
+function saveAndRender() {
+  saveState();
+  render();
+}
+
+function hotSeatResultsHtml(choice) {
+  return `<div class="result-card"><h4>YOU VOTED: ${choice}</h4><p>Community: TAKE IT 44% · NEGOTIATE 31% · STAY 17% · NEED INFO 8%. Crowd opinion is still just crowd opinion.</p></div>`;
+}
+
+function findCourse(id) {
+  return COURSES.find(c => c.id === id) || COURSES[0];
+}
+
+function redeemReward(id) {
+  const reward = REWARDS.find(r => r.id === id);
+  if (!reward) return;
+  if (state.rewardsUnlocked.includes(id)) return;
+  if (state.points < reward.cost) return;
+  state.points -= reward.cost;
+  state.rewardsUnlocked.push(id);
+  maybeDrop(15, 'UNLOCKED', `${reward.name} is yours. Same shit. Brighter days.`);
+  saveAndRender();
+}
+
+function buildReceiptHeadline() {
+  if (!state.lessonsWatched && !state.actionsDone) return 'YOU’VE ONLY JUST STARTED.';
+  if (state.actionsDone >= 5) return 'YOU’RE ACTUALLY DOING SHIT.';
+  return 'PROGRESS, NOT PERFORMING.';
+}
+
+function buildReceiptBody() {
+  const bits = [];
+  if (state.lessonsWatched) bits.push(`watched ${state.lessonsWatched} lesson${state.lessonsWatched === 1 ? '' : 's'}`);
+  if (state.actionsDone) bits.push(`did ${state.actionsDone} real-world move${state.actionsDone === 1 ? '' : 's'}`);
+  if (state.thingsChucked) bits.push(`chucked ${state.thingsChucked} piece${state.thingsChucked === 1 ? '' : 's'} of bullshit`);
+  if (!bits.length) return 'Go make some shit worth tracking.';
+  return `So far you’ve ${bits.join(', ')}. Better than staring at inspirational shit and doing nothing.`;
+}
