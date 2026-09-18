@@ -1,0 +1,9 @@
+{
+  "name":"DDC — Daddy Don't Care Co.",
+  "short_name":"DDC",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#08090c",
+  "theme_color":"#08090c",
+  "description":"DDC mobile web app prototype"
+}
