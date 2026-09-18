@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'ddc_app_v2';
+const STORAGE_KEY = 'ddc_app_v3';
 
 const COURSES = [
   {
@@ -219,100 +219,171 @@ function renderHome() {
   const level = getLevel();
   const dailyDone = state.watchedDaily ? 'WATCHED ✓' : `WATCH +${DAILY.bonus}`;
   const continueData = getContinueData();
+  const missionLabel = state.missionCompleted ? 'MISSION DONE ✓' : state.lastChallenge ? 'FINISH MISSION +100' : 'GET A MISSION';
+  const voteBlock = state.voteChoice
+    ? `<div class="feed-poll-result">You voted <strong>${state.voteChoice}</strong> · crowd says TAKE IT 44%</div>`
+    : `<div class="feed-poll-choices">
+        <button class="poll-chip" data-vote="TAKE IT">TAKE IT</button>
+        <button class="poll-chip" data-vote="NEGOTIATE">NEGOTIATE</button>
+        <button class="poll-chip" data-vote="STAY">STAY</button>
+        <button class="poll-chip" data-vote="NEED INFO">NEED INFO</button>
+      </div>`;
+
   return `
     <section class="screen active">
-      <div class="hero">
-        <div class="tag">TODAY</div>
-        <h1 class="hero-title">CARE ABOUT WHAT<br>MATTERS.<br><span class="pink">CHUCK THE REST.</span></h1>
-        <div class="hero-copy">Learn something. Do something. Laugh at some bullshit. Then get off your phone and go live.</div>
-        <div class="hero-doodle">GO FUCKING LIVE.</div>
-        <div class="progress-wrap">
-          <div class="progress-bar"><span style="width:${level.progress}%"></span></div>
-          <div class="progress-meta"><span>${level.name}</span><span>${level.toNext} points to next level</span></div>
+      <div class="hero hero-feed">
+        <div class="tag">DDC FEED</div>
+        <h1 class="hero-title">WHAT THE FUCK IS<br>GOING ON TODAY?</h1>
+        <div class="hero-copy">Not a menu. Not fake motivation. Useful shit, funny shit, and one clear next move.</div>
+        <div class="hero-doodle">${level.name} · ${level.toNext} to next level</div>
+        <div class="hero-stats-row">
+          <div class="hero-stat"><strong>${state.points}</strong><span>Points</span></div>
+          <div class="hero-stat"><strong>${state.actionsDone}</strong><span>Moves done</span></div>
+          <div class="hero-stat"><strong>${state.lessonsWatched}</strong><span>Lessons</span></div>
         </div>
       </div>
 
-      <div class="ribbon-row">
-        <div class="daily-card">
-          <div class="daily-head">
+      <div class="feed-stack home-feed-stack">
+        <article class="feed-panel daily-panel">
+          <div class="feed-panel-top">
             <div>
-              <div class="daily-pill">DAILY DROP</div>
-              <h2 class="daily-title">${DAILY.title}</h2>
+              <div class="feed-kicker">DDC DAILY · VIDEO</div>
+              <h2>${DAILY.title}</h2>
             </div>
             <div class="status-pill">+${DAILY.bonus}</div>
           </div>
-          <div class="daily-copy">${DAILY.body}</div>
+          <p>${DAILY.body}</p>
+          <div class="video-thumb">
+            <div class="play-badge">▶</div>
+            <div class="video-copy">
+              <strong>${DAILY.subtitle}</strong>
+              <span>60 seconds · quick hit · watch and move on</span>
+            </div>
+          </div>
           <div class="action-row">
             <button class="primary-btn" id="watchDailyHome">${dailyDone}</button>
             <button class="outline-btn" data-nav="daily">OPEN DAILY</button>
           </div>
-        </div>
-        <div class="continue-card">
-          <div class="continue-head">
+        </article>
+
+        <article class="feed-panel hotseat-panel">
+          <div class="feed-panel-top">
             <div>
-              <div class="continue-pill">CONTINUE</div>
-              <h2 class="continue-title">${continueData.title}</h2>
+              <div class="feed-kicker">HOT SEAT · REAL SITUATION</div>
+              <h2>NEW OFFER PAYS LESS. MORE FREEDOM. TAKE IT?</h2>
+            </div>
+            <div class="status-pill">+5 vote</div>
+          </div>
+          <p>A guy hates his job. New offer pays 15% less, but he gets Fridays off and works remote. What’s the DDC move?</p>
+          ${voteBlock}
+          <div class="action-row">
+            <button class="outline-btn" data-nav="hotseat">OPEN HOT SEAT</button>
+          </div>
+        </article>
+
+        <article class="feed-panel mission-panel">
+          <div class="feed-panel-top">
+            <div>
+              <div class="feed-kicker">YOUR NEXT MOVE</div>
+              <h2>${state.lastChallenge || 'LET THE APP KICK YOU IN THE ASS.'}</h2>
+            </div>
+            <div class="status-pill">+100</div>
+          </div>
+          <p>${state.lastChallenge ? 'Good. Now go actually do it instead of admiring it from your screen.' : 'Generate one simple mission and go make a memory instead of another excuse.'}</p>
+          <div class="action-row">
+            <button class="secondary-btn" id="newMission">${state.lastChallenge ? 'NEW MISSION' : 'GIVE ME A MISSION'}</button>
+            <button class="outline-btn" id="completeMission" ${state.lastChallenge ? '' : 'disabled'}>${missionLabel}</button>
+          </div>
+        </article>
+
+        <article class="feed-panel continue-panel">
+          <div class="feed-panel-top">
+            <div>
+              <div class="feed-kicker">CONTINUE LEARNING</div>
+              <h2>${continueData.title}</h2>
             </div>
             <div class="status-pill">${continueData.progress}</div>
           </div>
-          <div class="continue-copy">${continueData.copy}</div>
+          <p>${continueData.copy}</p>
+          <div class="tiny-progress"><span style="width:${Math.max(8, Math.round((parseInt(continueData.progress) || 0) / 4 * 100))}%"></span></div>
           <div class="action-row">
-            <button class="secondary-btn" data-lesson="${continueData.lessonIndex}" data-course="${continueData.courseId}">KEEP GOING</button>
+            <button class="secondary-btn" data-lesson="${continueData.lessonIndex}" data-course="${continueData.courseId}">CONTINUE COURSE</button>
+            <button class="outline-btn" data-nav="university">ALL COURSES</button>
           </div>
-        </div>
-      </div>
+        </article>
 
-      <div class="section-head"><div class="section-title">ALRIGHT, WHAT’S THE FUCKING PROBLEM?</div><div class="section-sub">Pick your poison.</div></div>
-      <div class="feature-grid">
-        ${featureCard('wingman', '💬', 'WINGMAN', 'What the fuck do I say?', '+10 insight', 'wingman')}
-        ${featureCard('university', '🎓', 'DDC UNIVERSITY', 'Useful shit. No guru bullshit.', `${countStartedCourses()} started`, 'university')}
-        ${featureCard('challenge', '⚡', 'CHALLENGE MODE', 'Get off your ass.', '+100 mission', 'challenge')}
-        ${featureCard('hotseat', '🔥', 'HOT SEAT', 'Vote on real people. Real situations.', '+5 vote', 'hotseat')}
-        ${featureCard('bucket', '🪣', 'FUCK-IT BUCKET', 'Handle it or chuck it.', `CHUCKED ${state.thingsChucked}`, 'bucket')}
-        ${featureCard('daily', '📺', 'DDC DAILY', 'Come back every day for a hit of useful shit.', state.watchedDaily ? 'Done today' : 'Ready now', 'daily')}
-      </div>
-
-      <div class="home-grid" style="margin-top:14px;">
-        <div class="rewards-preview">
-          <div class="daily-head">
+        <article class="feed-panel crew-panel">
+          <div class="feed-panel-top">
             <div>
-              <div class="reward-pill">REWARDS PREVIEW</div>
-              <h3>DO SHIT. GET COOL SHIT.</h3>
+              <div class="feed-kicker">CREW ACTIVITY</div>
+              <h2>YOUR PEOPLE DID SHIT TODAY.</h2>
             </div>
-            <button class="outline-btn" data-nav="rewards">SEE ALL</button>
+            <div class="status-pill">social hit</div>
           </div>
-          <div class="reward-list">
-            ${REWARDS.slice(0,3).map(r => rewardPreviewRow(r)).join('')}
+          <div class="activity-list">
+            <div class="activity-item"><strong>Clint</strong> completed the challenge.</div>
+            <div class="activity-item"><strong>Sassy</strong> voted “STOP ASKING 😂” on a crew dilemma.</div>
+            <div class="activity-item"><strong>You</strong> ${state.crewSent ? 'sent a crew challenge.' : 'can send tonight’s crew challenge.'}</div>
           </div>
-        </div>
+          <div class="action-row">
+            <button class="outline-btn" data-nav="crew">OPEN CREW</button>
+            <button class="primary-btn" id="sendCrew">${state.crewSent ? 'SENT ✓' : 'SEND TO CREW'}</button>
+          </div>
+        </article>
+
+        <article class="feed-panel rewards-panel">
+          <div class="feed-panel-top">
+            <div>
+              <div class="feed-kicker">FUCK YEAH DROP</div>
+              <h2>UNLOCK SHIT THAT ACTUALLY FEELS LIKE A WIN.</h2>
+            </div>
+            <div class="status-pill">rewards</div>
+          </div>
+          <div class="reward-mini-grid">
+            ${REWARDS.slice(0,3).map(r => `
+              <div class="reward-mini-card">
+                <strong>${r.name}</strong>
+                <span>${state.points >= r.cost ? 'READY NOW' : `${r.cost - state.points} away`}</span>
+              </div>`).join('')}
+          </div>
+          <div class="action-row">
+            <button class="outline-btn" data-nav="rewards">OPEN REWARDS</button>
+          </div>
+        </article>
+
+        <article class="feed-panel trending-panel">
+          <div class="feed-panel-top">
+            <div>
+              <div class="feed-kicker">TRENDING IN DDC</div>
+              <h2>LESS BULLSHIT. MORE LIFE.</h2>
+            </div>
+            <div class="status-pill">today</div>
+          </div>
+          <div class="trend-rows">
+            <div class="trend-row"><span class="trend-rank">01</span><div><strong>Confession:</strong> “I almost didn’t go alone. Then I did. Had a killer night.”</div></div>
+            <div class="trend-row"><span class="trend-rank">02</span><div><strong>Poll:</strong> Is “someday” just a fancy word for never?</div></div>
+            <div class="trend-row"><span class="trend-rank">03</span><div><strong>Win:</strong> “Quit waiting. Booked the damn trip.”</div></div>
+          </div>
+        </article>
+
+        <article class="feed-panel tools-panel">
+          <div class="feed-panel-top">
+            <div>
+              <div class="feed-kicker">TOOLS</div>
+              <h2>WHEN YOU NEED SOMETHING SPECIFIC.</h2>
+            </div>
+          </div>
+          <div class="tools-grid-home">
+            <button class="tool-chip-home" data-nav="wingman">💬 WINGMAN</button>
+            <button class="tool-chip-home" data-nav="bucket">🪣 BUCKET</button>
+            <button class="tool-chip-home" data-nav="university">🎓 UNIVERSITY</button>
+            <button class="tool-chip-home" data-nav="challenge">⚡ CHALLENGES</button>
+            <button class="tool-chip-home" data-nav="hotseat">🔥 HOT SEAT</button>
+            <button class="tool-chip-home" data-nav="me">◎ YOUR LIFE</button>
+          </div>
+        </article>
       </div>
     </section>
-  `;
-}
-
-function featureCard(cls, emoji, title, copy, badge, nav) {
-  return `
-    <button class="feature-card ${cls}" data-nav="${nav}">
-      <div class="feature-top">
-        <div class="feature-emoji">${emoji}</div>
-        <div class="feature-tag">OPEN</div>
-      </div>
-      <h3>${title}</h3>
-      <p>${copy}</p>
-      <div class="points-badge">${badge}</div>
-    </button>
-  `;
-}
-
-function rewardPreviewRow(r) {
-  return `
-    <div class="reward-item">
-      <div>
-        <div class="reward-name">${r.name}</div>
-        <div class="reward-cost">${r.cost} points</div>
-      </div>
-      <div class="small-note">${state.points >= r.cost ? 'READY' : `${r.cost - state.points} away`}</div>
-    </div>
   `;
 }
 

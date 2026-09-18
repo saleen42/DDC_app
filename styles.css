@@ -173,3 +173,49 @@ button{cursor:pointer}
   .feature-emoji{font-size:28px}
   .bottom-nav button{font-size:11px}
 }
+
+/* Phase 3 feed-driven home */
+.hero-feed{padding-bottom:20px}
+.hero-stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.hero-stat{padding:14px 12px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);text-align:center}
+.hero-stat strong{display:block;font-size:28px;line-height:1;font-weight:950}
+.hero-stat span{display:block;margin-top:6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.home-feed-stack{margin-top:14px;display:flex;flex-direction:column;gap:14px}
+.feed-panel{border-radius:28px;padding:18px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(20,24,36,.98),rgba(12,15,23,.98));box-shadow:var(--shadow);position:relative;overflow:hidden}
+.feed-panel:before{content:"";position:absolute;right:-35px;bottom:-35px;width:140px;height:140px;border-radius:28px;transform:rotate(-18deg);opacity:.16;pointer-events:none}
+.daily-panel:before{background:linear-gradient(135deg,var(--pink),#532049)}
+.hotseat-panel:before{background:linear-gradient(135deg,#ff8a25,#5b1a09)}
+.mission-panel:before{background:linear-gradient(135deg,var(--blue),#133f67)}
+.continue-panel:before{background:linear-gradient(135deg,#6c5cff,#281d69)}
+.crew-panel:before{background:linear-gradient(135deg,#18d4a3,#0d6148)}
+.rewards-panel:before{background:linear-gradient(135deg,#ffc86b,#66451a)}
+.trending-panel:before{background:linear-gradient(135deg,#fa47c8,#1749d8)}
+.tools-panel:before{background:linear-gradient(135deg,#ffffff22,#ffffff03)}
+.feed-panel-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.feed-panel h2{margin:0;font-size:31px;line-height:.98;letter-spacing:-.05em;text-transform:uppercase}
+.feed-panel p{margin:0;font-size:15px;line-height:1.5;color:#e2e7f0}
+.feed-kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#aeb7c8;margin-bottom:8px}
+.video-thumb{display:flex;gap:14px;align-items:center;margin-top:14px;padding:14px;border-radius:22px;background:linear-gradient(135deg,rgba(255,22,143,.18),rgba(23,185,255,.18));border:1px solid rgba(255,255,255,.08)}
+.play-badge{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#111;font-weight:900;font-size:21px;flex-shrink:0}
+.video-copy strong{display:block;font-size:16px}
+.video-copy span{display:block;margin-top:4px;font-size:13px;color:#e6ebf6}
+.feed-poll-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.poll-chip{border:none;background:rgba(255,255,255,.06);color:#fff;padding:11px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);font-weight:800}
+.feed-poll-result{margin-top:14px;padding:13px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:14px;color:#e4e9f3}
+.activity-list,.trend-rows{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.activity-item,.trend-row{padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:14px;line-height:1.45;color:#e7ecf5}
+.trend-row{display:flex;gap:12px;align-items:flex-start}
+.trend-rank{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border-radius:999px;background:rgba(255,22,143,.15);border:1px solid rgba(255,22,143,.35);font-size:12px;font-weight:900;color:#ffd5ec}
+.reward-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.reward-mini-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.reward-mini-card strong{display:block;font-size:14px;line-height:1.3}
+.reward-mini-card span{display:block;margin-top:5px;font-size:12px;color:#c5cede}
+.tools-grid-home{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.tool-chip-home{border:none;border-radius:18px;padding:16px 14px;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#fff;font-weight:900;letter-spacing:.02em}
+@media (max-width:560px){
+  .feed-panel h2{font-size:23px}
+  .hero-stats-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .hero-stat strong{font-size:22px}
+  .reward-mini-grid{grid-template-columns:1fr}
+  .tools-grid-home{grid-template-columns:1fr 1fr}
+}

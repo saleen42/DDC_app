@@ -1,44 +1,31 @@
-# DDC App — Phase 2
+# DDC App — Phase 3
 
-Updated mobile-first static prototype for Daddy Don't Care Co.
+This is the larger rebuilt update so you do not have to keep uploading tiny little changes all day.
 
-## What's improved
-- Home screen redesigned to feel more alive and less dashboard-y
-- Daily Drop moved high on the home screen
-- Continue Learning card added
-- Bigger, more distinct feature cards with stronger personalities
-- More visible points, bonuses, and surprise drops
-- Rewards preview on home screen
-- Upgraded styling with rougher DDC attitude while staying usable
-- Full clickable flows for:
-  - Wingman
-  - DDC University
-  - Course lessons
-  - Challenge Mode
-  - Hot Seat
-  - Fuck-It Bucket
-  - Crew
-  - DDC Daily
-  - Rewards
-  - Your Life stats
-- Local persistence with browser localStorage
+## Big changes in Phase 3
+- Home screen rebuilt as a feed instead of a menu
+- DDC Daily card with video-style treatment
+- Hot Seat directly on the home feed
+- Mission / Next Move directly on the home feed
+- Continue Learning card on the home feed
+- Crew Activity section on the home feed
+- Rewards / Fuck Yeah Drop section on the home feed
+- Trending in DDC section on the home feed
+- Tools section moved lower on the home feed
+- Stronger, less dashboard-y visual direction
+- Keeps working flows for Wingman, University, Challenges, Hot Seat, Bucket, Crew, Rewards, and Your Life
+- Uses a new localStorage key so the new version starts cleaner
 
-## Files
+## Deploy
+Replace the old files in your GitHub repo with these new files and let Render auto-redeploy.
+
+Build command: leave blank
+Publish directory: .
+
+## Included files
 - index.html
 - styles.css
 - app.js
 - manifest.webmanifest
 - render.yaml
-
-## Deploy
-Upload all files to your GitHub repo and redeploy on Render as a Static Site.
-
-Build command: leave blank
-Publish directory: .
-
-## Next good move
-- Add Supabase for accounts + saved progress
-- Add real video/course content CMS
-- Add actual AI-powered Wingman
-- Add push notifications and streak logic
-- Add Shopify / rewards integration
+- README.md
